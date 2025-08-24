@@ -18,7 +18,7 @@ LEANN is an innovative vector database that democratizes personal AI. Transform 
 
 LEANN achieves this through *graph-based selective recomputation* with *high-degree preserving pruning*, computing embeddings on-demand instead of storing them all. [Illustration Fig →](#️-architecture--how-it-works) | [Paper →](https://arxiv.org/abs/2506.08276)
 
-**Ready to RAG Everything?** Transform your laptop into a personal AI assistant that can semantic search your **[file system](#-personal-data-manager-process-any-documents-pdf-txt-md)**, **[emails](#-your-personal-email-secretary-rag-on-apple-mail)**, **[browser history](#-time-machine-for-the-web-rag-your-entire-browser-history)**, **[chat history](#-wechat-detective-unlock-your-golden-memories)**, **[codebase](#-claude-code-integration-transform-your-development-workflow)**\* , or external knowledge bases (i.e., 60M documents) - all on your laptop, with zero cloud costs and complete privacy.
+**Ready to RAG Everything?** Transform your laptop into a personal AI assistant that can semantic search your **[file system](#-personal-data-manager-process-any-documents-pdf-txt-md)**, **[emails](#-your-personal-email-secretary-rag-on-apple-mail)**, **[notes](#-your-personal-notes-assistant-rag-on-apple-notes)**, **[browser history](#-time-machine-for-the-web-rag-your-entire-browser-history)**, **[chat history](#-wechat-detective-unlock-your-golden-memories)**, **[codebase](#-claude-code-integration-transform-your-development-workflow)**\* , or external knowledge bases (i.e., 60M documents) - all on your laptop, with zero cloud costs and complete privacy.
 
 
 \* Claude Code only supports basic `grep`-style keyword search. **LEANN** is a drop-in **semantic search MCP service fully compatible with Claude Code**, unlocking intelligent retrieval without changing your workflow. 🔥 Check out [the easy setup →](packages/leann-mcp/README.md)
@@ -174,7 +174,7 @@ response = chat.ask("How much storage does LEANN save?", top_k=1)
 
 ## RAG on Everything!
 
-LEANN supports RAG on various data sources including documents (`.pdf`, `.txt`, `.md`), Apple Mail, Google Search History, WeChat, and more.
+LEANN supports RAG on various data sources including documents (`.pdf`, `.txt`, `.md`), Apple Mail, Apple Notes, Google Search History, WeChat, and more.
 
 
 
@@ -350,6 +350,56 @@ Once the index is built, you can ask questions like:
 - "Find emails from my boss about deadlines"
 - "What did John say about the project timeline?"
 - "Show me emails about travel expenses"
+</details>
+
+### 📝 Your Personal Notes Assistant: RAG on Apple Notes!
+
+> **Note:** The examples below currently support macOS only. Windows support coming soon.
+
+Transform your Apple Notes into a searchable knowledge base! Index and query all your notes, ideas, and thoughts with semantic search.
+
+```bash
+python -m apps.notes_rag --query "Find my grocery lists"
+```
+
+Before running the example above, you need to grant full disk access to your terminal/VS Code in System Preferences → Privacy & Security → Full Disk Access.
+
+<details>
+<summary><strong>📋 Click to expand: Notes-Specific Arguments</strong></summary>
+
+#### Parameters
+```bash
+--notes-db-path PATH      # Path to Notes database (auto-detects if omitted)
+--folder-filter TEXT     # Only process notes from folders containing this string
+--include-folders        # Include folder information in metadata (default: True)
+--chunk-size SIZE        # Text chunk size (default: 512)
+--chunk-overlap SIZE     # Text chunk overlap (default: 50)
+```
+
+#### Example Commands
+```bash
+# Search notes from a specific folder
+python -m apps.notes_rag --folder-filter "Work" --query "meeting notes project timeline"
+
+# Find recipe notes with larger chunks for better context
+python -m apps.notes_rag --folder-filter "Recipes" --chunk-size 1024 --query "chocolate cake recipe"
+
+# Query all notes with specific database path
+python -m apps.notes_rag --notes-db-path "~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite"
+```
+
+</details>
+
+<details>
+<summary><strong>📋 Click to expand: Example queries you can try</strong></summary>
+
+Once the index is built, you can ask questions like:
+- "Find my grocery lists"
+- "What ideas did I write about the project?"
+- "Show me notes about travel plans"
+- "Find meeting notes from last week"
+- "What recipes did I save?"
+- "Show me book recommendations I noted down"
 </details>
 
 ### 🔍 Time Machine for the Web: RAG Your Entire Chrome Browser History!
