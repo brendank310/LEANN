@@ -354,7 +354,7 @@ Once the index is built, you can ask questions like:
 
 ### 📝 Your Personal Notes Assistant: RAG on Apple Notes!
 
-> **Note:** The examples below currently support macOS only. Windows support coming soon.
+> **Note:** Apple Notes support is currently available on macOS only. See [Running Scenarios](#apple-notes-running-scenarios) below for setup options and alternatives.
 
 Transform your Apple Notes into a searchable knowledge base! Index and query all your notes, ideas, and thoughts with semantic search.
 
@@ -363,6 +363,64 @@ python -m apps.notes_rag --query "Find my grocery lists"
 ```
 
 Before running the example above, you need to grant full disk access to your terminal/VS Code in System Preferences → Privacy & Security → Full Disk Access.
+
+#### Apple Notes Running Scenarios
+
+**📊 Quick Reference Table**
+
+| Platform | AI Type | Setup | Privacy | Example Command |
+|----------|---------|-------|---------|-----------------|
+| 🍎 macOS | Cloud AI | `export OPENAI_API_KEY=...` | Moderate | `python -m apps.notes_rag --query "groceries"` |
+| 🍎 macOS | Local AI | `brew install ollama && ollama pull llama3.2:1b` | Full | `python -m apps.notes_rag --llm ollama --llm-model llama3.2:1b --query "recipes"` |
+| 🐧 Linux | Any | Export notes to text files | Full | `python -m apps.document_rag --data-dir ~/Notes --query "ideas"` |
+| 🪟 Windows | Any | Export notes to text files | Full | `python -m apps.document_rag --data-dir "C:\Notes" --query "ideas"` |
+
+**🍎 macOS with Cloud AI (OpenAI)**
+```bash
+# Set up OpenAI API key
+export OPENAI_API_KEY="your-api-key-here"
+
+# Basic usage (default uses OpenAI GPT-4o)
+python -m apps.notes_rag --query "Find my grocery lists"
+
+# Interactive mode for multiple queries
+python -m apps.notes_rag
+```
+
+**🍎 macOS with Local AI (Ollama) - Fully Private**
+```bash
+# Install and setup Ollama
+brew install ollama
+ollama pull llama3.2:1b
+
+# Use local AI (no internet required after setup)
+python -m apps.notes_rag --llm ollama --llm-model llama3.2:1b --query "Find my recipes"
+
+# Interactive mode with local AI
+python -m apps.notes_rag --llm ollama --llm-model llama3.2:1b
+```
+
+**🐧 Linux / 🪟 Windows - Alternative Solutions**
+
+Apple Notes is not available on Linux/Windows, but you have these options:
+
+```bash
+# Option 1: Document RAG with exported notes
+# Export your notes as text/markdown files first
+python -m apps.document_rag --data-dir ~/Documents/Notes --query "project ideas"
+
+# Option 2: Browser RAG for web-based note tools
+python -m apps.browser_rag --query "notion workspace"
+
+# Option 3: Code RAG for developer notes in repositories
+python -m apps.code_rag --repo-dir ~/my-notes-repo --query "technical documentation"
+```
+
+**💡 Migration Tips for Linux/Windows Users:**
+- Export Apple Notes to text/markdown files using third-party tools
+- Use Notion, Obsidian, or Joplin and export to supported formats
+- Store notes as markdown files in a directory for `document_rag.py`
+- Consider using browser-based tools and leverage `browser_rag.py`
 
 <details>
 <summary><strong>📋 Click to expand: Notes-Specific Arguments</strong></summary>
@@ -376,7 +434,9 @@ Before running the example above, you need to grant full disk access to your ter
 --chunk-overlap SIZE     # Text chunk overlap (default: 50)
 ```
 
-#### Example Commands
+#### Example Commands by Scenario
+
+**Cloud AI (OpenAI) Examples:**
 ```bash
 # Search notes from a specific folder
 python -m apps.notes_rag --folder-filter "Work" --query "meeting notes project timeline"
@@ -386,6 +446,18 @@ python -m apps.notes_rag --folder-filter "Recipes" --chunk-size 1024 --query "ch
 
 # Query all notes with specific database path
 python -m apps.notes_rag --notes-db-path "~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite"
+```
+
+**Local AI (Ollama) Examples:**
+```bash
+# Fully private note search with local AI
+python -m apps.notes_rag --llm ollama --llm-model llama3.2:1b --folder-filter "Personal" --query "vacation plans"
+
+# Interactive mode with local AI for multiple queries
+python -m apps.notes_rag --llm ollama --llm-model llama3.2:1b
+
+# Custom embedding model with local AI
+python -m apps.notes_rag --llm ollama --llm-model llama3.2:1b --embedding-model facebook/contriever --query "book recommendations"
 ```
 
 </details>

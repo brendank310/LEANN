@@ -86,23 +86,48 @@ class NotesRAG(BaseRAGExample):
 
     async def load_data(self, args) -> list[str]:
         """Load notes and convert to text chunks."""
+        # Platform check with helpful guidance
+        import sys
+        if sys.platform != "darwin":
+            print("\n❌ Apple Notes is only available on macOS")
+            print("\n🔄 Alternative options for your platform:")
+            if sys.platform.startswith("linux"):
+                print("  • Use document_rag.py with text/markdown files")
+                print("  • Export notes from other apps (OneNote, Notion) to supported formats")
+                print("  • Consider using browser_rag.py for web-based note-taking tools")
+            elif sys.platform == "win32":
+                print("  • Use document_rag.py with text/markdown files") 
+                print("  • Export from OneNote or other Windows note apps")
+                print("  • Consider using browser_rag.py for web-based note-taking tools")
+            print(f"\n💡 Current platform: {sys.platform}")
+            print("📚 See README.md for platform-specific alternatives")
+            return []
+        
         # Determine notes database path
         if args.notes_db_path:
             db_path = Path(args.notes_db_path)
             if not db_path.exists():
-                print(f"Specified notes database path does not exist: {args.notes_db_path}")
+                print(f"❌ Specified notes database path does not exist: {args.notes_db_path}")
+                print("💡 Try auto-detection by omitting --notes-db-path")
                 return []
         else:
-            print("Auto-detecting Apple Notes database...")
+            print("🔍 Auto-detecting Apple Notes database...")
             db_path = self._find_notes_database()
 
         if not db_path:
-            print("Apple Notes database not found!")
-            print("Make sure you're running on macOS and the Notes app has been used.")
-            print("You can also specify the database path manually with --notes-db-path")
+            print("❌ Apple Notes database not found!")
+            print("\n🔧 Troubleshooting steps:")
+            print("  1. Make sure you're running on macOS")
+            print("  2. Open the Notes app and create at least one note")
+            print("  3. Grant Full Disk Access to your terminal:")
+            print("     System Preferences → Privacy & Security → Full Disk Access")
+            print("  4. Try specifying the database path manually with --notes-db-path")
+            print("\n📍 Common database locations:")
+            print("  • ~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite")
+            print("  • ~/Library/Containers/com.apple.Notes/Data/Library/Notes/NotesV7.storedata")
             return []
 
-        print(f"Found Notes database: {db_path}")
+        print(f"✅ Found Notes database: {db_path}")
 
         # Create reader
         reader = NotesReader(
@@ -112,7 +137,7 @@ class NotesRAG(BaseRAGExample):
 
         try:
             # Load notes
-            print("Reading notes from database...")
+            print("📖 Reading notes from database...")
             
             # Prepare load kwargs
             load_kwargs = {}
@@ -127,54 +152,96 @@ class NotesRAG(BaseRAGExample):
             )
 
             if not documents:
-                print("No notes found to process!")
+                print("❌ No notes found to process!")
                 if args.folder_filter:
-                    print(f"Try removing the folder filter '{args.folder_filter}' or check folder names")
+                    print(f"🔍 Try removing the folder filter '{args.folder_filter}' or check folder names")
+                    print("💡 Available folders can be seen by running without --folder-filter first")
+                else:
+                    print("🔧 Troubleshooting:")
+                    print("  • Make sure you have notes in the Apple Notes app")
+                    print("  • Check Full Disk Access permissions")
+                    print("  • Try a different database path with --notes-db-path")
                 return []
 
-            print(f"Successfully loaded {len(documents)} notes")
+            print(f"✅ Successfully loaded {len(documents)} notes")
 
             # Convert documents to text chunks
-            print("Converting notes to text chunks...")
+            print("🔄 Converting notes to text chunks...")
             all_texts = create_text_chunks(
                 documents, 
                 chunk_size=args.chunk_size, 
                 chunk_overlap=args.chunk_overlap
             )
 
-            print(f"Created {len(all_texts)} text chunks from {len(documents)} notes")
+            print(f"✅ Created {len(all_texts)} text chunks from {len(documents)} notes")
+            print("🚀 Ready for semantic search!")
             return all_texts
 
         except FileNotFoundError as e:
-            print(f"Database error: {e}")
+            print(f"❌ Database error: {e}")
+            print("💡 Make sure the Notes app has been opened and contains notes")
             return []
         except RuntimeError as e:
-            print(f"Error processing notes: {e}")
+            print(f"❌ Error processing notes: {e}")
+            print("🔧 This might be a permissions issue - check Full Disk Access")
             return []
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"❌ Unexpected error: {e}")
+            print("🆘 Please check your Notes database and permissions")
             return []
 
 
 if __name__ == "__main__":
     import asyncio
 
-    # Check platform
-    if sys.platform != "darwin":
-        print("\n⚠️  Warning: This example is designed for macOS (Apple Notes)")
-        print("   Windows/Linux support coming soon!\n")
-
-    # Example queries for notes RAG
+    # Platform-specific startup information
     print("\n📝 Apple Notes RAG Example")
     print("=" * 50)
-    print("\nExample queries you can try:")
-    print("- 'Find my grocery lists'")
-    print("- 'What ideas did I write about the project?'")
-    print("- 'Show me notes about travel plans'")
-    print("- 'Find meeting notes from last week'")
-    print("- 'What recipes did I save?'")
-    print("\nNote: You may need to grant Full Disk Access to your terminal")
-    print("in System Preferences → Privacy & Security → Full Disk Access\n")
+    
+    if sys.platform == "darwin":
+        print("✅ Running on macOS - Apple Notes supported!")
+        print("\n🔧 Setup Requirements:")
+        print("  1. Grant Full Disk Access to your terminal:")
+        print("     System Preferences → Privacy & Security → Full Disk Access")
+        print("  2. Ensure you have notes in the Apple Notes app")
+        
+        print("\n🤖 AI Model Options:")
+        print("  • Cloud AI (OpenAI): Set OPENAI_API_KEY environment variable")
+        print("  • Local AI (Ollama): Install Ollama and pull a model (e.g., llama3.2:1b)")
+        print("    - macOS: brew install ollama && ollama pull llama3.2:1b")
+        print("    - Use --llm ollama --llm-model llama3.2:1b")
+        
+        print("\n📊 Example Usage Scenarios:")
+        print("  # Quick start with OpenAI (requires API key)")
+        print("  python -m apps.notes_rag --query 'Find my grocery lists'")
+        print("  ")
+        print("  # Local AI with Ollama (fully private)")
+        print("  python -m apps.notes_rag --llm ollama --llm-model llama3.2:1b --query 'Find my recipes'")
+        print("  ")
+        print("  # Search specific folder with custom chunking")
+        print("  python -m apps.notes_rag --folder-filter 'Work' --chunk-size 1024 --query 'meeting notes'")
+    else:
+        print(f"❌ Platform: {sys.platform} - Apple Notes not supported")
+        print("\n🔄 Alternative Solutions:")
+        if sys.platform.startswith("linux"):
+            print("  📁 Document RAG: python -m apps.document_rag --data-dir ~/Documents")
+            print("  🌐 Browser RAG: python -m apps.browser_rag --query 'research topics'")
+            print("  💾 Export notes from web-based tools (Notion, Google Keep) as text/markdown")
+        elif sys.platform == "win32":
+            print("  📁 Document RAG: python -m apps.document_rag --data-dir C:\\Users\\YourName\\Documents")
+            print("  📝 Export from OneNote or other Windows note apps")
+            print("  🌐 Browser RAG: python -m apps.browser_rag --query 'research topics'")
+        
+        print("\n💡 To continue anyway (will fail gracefully):")
+        print("  python -m apps.notes_rag --query 'test query'")
+    
+    print("\n🎯 Example Queries (if on macOS):")
+    print("  - 'Find my grocery lists'")
+    print("  - 'What ideas did I write about the project?'")
+    print("  - 'Show me notes about travel plans'")
+    print("  - 'Find meeting notes from last week'")
+    print("  - 'What recipes did I save?'")
+    print()
 
     rag = NotesRAG()
     asyncio.run(rag.run())
